@@ -19,6 +19,8 @@ public class ArraySet<T> extends AbstractSet<T> implements NavigableSet<T> {
 		this.data = collection;
 	}
 
+	// :NOTE: ArraySet(SortedSet) constructor
+
 	public ArraySet(Collection<? extends T> collection) {
 		this(collection, null);
 	}
@@ -27,7 +29,7 @@ public class ArraySet<T> extends AbstractSet<T> implements NavigableSet<T> {
 		this(Collections.emptyList(), null);
 	}
 
-	private int FindElementHigher(T x) {
+	private int FindElementHigher(T x) { // :NOTE: naming
 		if (x == null && comp == null) {
 			throw new NullPointerException("Not supported null values in this set");
 		}
@@ -50,7 +52,7 @@ public class ArraySet<T> extends AbstractSet<T> implements NavigableSet<T> {
 		return data.get(index);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked") // :NOTE: redundant
 	private int compare(T a, T b) {
 		if (comp != null) {
 			return comp.compare(a, b);
@@ -168,7 +170,7 @@ public class ArraySet<T> extends AbstractSet<T> implements NavigableSet<T> {
 
 	@Override
 	public NavigableSet<T> tailSet(T x, boolean b) {
-		int begin = b ? FindElementCeil(x) : FindElementHigher(x);
+		int begin = b ? FindElementCeil(x) : FindElementHigher(x); // :NOTE: subset
 		return new ArraySet<>(data.subList(begin, data.size()), comp);
 	}
 }
