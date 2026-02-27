@@ -9,7 +9,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 
-class PrintHashForFiles<T extends HashFunction> implements FileVisitor<Path> {
+class PrintHashForFiles<T extends PrefixHashFunction> implements FileVisitor<Path> {
 
   private final T hashFunc;
   private final BufferedWriter writer;

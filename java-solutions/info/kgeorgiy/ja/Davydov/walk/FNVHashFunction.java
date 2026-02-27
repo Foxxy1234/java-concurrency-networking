@@ -1,6 +1,6 @@
 package info.kgeorgiy.ja.Davydov.walk;
 
-public class FNVHashFunction implements HashFunction {
+public class FNVHashFunction implements PrefixHashFunction {
 
   private static final int FNV_START = 0x811c9dc5;
   private static final int FNV_PRIME = 0x01000193;

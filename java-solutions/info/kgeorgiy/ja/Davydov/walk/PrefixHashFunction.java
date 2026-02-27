@@ -1,6 +1,6 @@
 package info.kgeorgiy.ja.Davydov.walk;
 
-public interface HashFunction {
+public interface PrefixHashFunction {
   void update(byte[] buf, int off, int len);
 
   void update(byte[] buf);
