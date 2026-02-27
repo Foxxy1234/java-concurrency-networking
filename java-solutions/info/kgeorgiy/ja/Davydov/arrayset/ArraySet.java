@@ -2,7 +2,7 @@ package info.kgeorgiy.ja.Davydov.arrayset;
 
 import java.util.*;
 
-public class ArraySet<T> implements NavigableSet<T> {
+public class ArraySet<T> extends AbstractSet<T> implements NavigableSet<T> {
 
 	private final List<T> data;
 	private final Comparator<? super T> comp;
@@ -171,42 +171,7 @@ public class ArraySet<T> implements NavigableSet<T> {
 	}
 
 	@Override
-	public boolean add(T x) {
-		throw new UnsupportedOperationException("Invalid method for an immutable set");
-	}
-
-	@Override
-	public boolean addAll(Collection<? extends T> c) {
-		throw new UnsupportedOperationException("Invalid method for an immutable set");
-	}
-
-	@Override
-	public void clear() {
-		throw new UnsupportedOperationException("Invalid method for an immutable set");
-	}
-
-	@Override
-	public boolean containsAll(Collection<?> c) {
-		for (Object o : c) {
-			if (!contains(o)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	@Override
-	public boolean isEmpty() {
-		return data.isEmpty();
-	}
-
-	@Override
 	public boolean remove(Object o) {
-		throw new UnsupportedOperationException("Invalid method for an immutable set");
-	}
-
-	@Override
-	public boolean removeAll(Collection<?> c) {
 		throw new UnsupportedOperationException("Invalid method for an immutable set");
 	}
 
@@ -214,15 +179,4 @@ public class ArraySet<T> implements NavigableSet<T> {
 	public boolean retainAll(Collection<?> c) {
 		throw new UnsupportedOperationException("Invalid method for an immutable set");
 	}
-
-	@Override
-	public Object[] toArray() {
-		return data.toArray();
-	}
-
-	@Override
-	public <E> E[] toArray(E[] arr) {
-		return data.toArray(arr);
-	}
-
 }
