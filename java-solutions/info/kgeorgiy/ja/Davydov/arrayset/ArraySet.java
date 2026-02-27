@@ -169,14 +169,4 @@ public class ArraySet<T> extends AbstractSet<T> implements NavigableSet<T> {
 		int begin = b ? FindElementCeil(x) : FindElementHigher(x);
 		return new ArraySet<>(data.subList(begin, data.size()), comp);
 	}
-
-	@Override
-	public boolean remove(Object o) {
-		throw new UnsupportedOperationException("Invalid method for an immutable set");
-	}
-
-	@Override
-	public boolean retainAll(Collection<?> c) {
-		throw new UnsupportedOperationException("Invalid method for an immutable set");
-	}
 }
