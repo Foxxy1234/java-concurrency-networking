@@ -50,11 +50,12 @@ public class ArraySet<T> extends AbstractSet<T> implements NavigableSet<T> {
 		return data.get(index);
 	}
 
+	@SuppressWarnings("unchecked")
 	private int compare(T a, T b) {
 		if (comp != null) {
 			return comp.compare(a, b);
 		}
-		return ((Comparable<T>) a).compareTo(b);
+		return ((Comparable<Object>) a).compareTo(b);
 	}
 
 	@Override
@@ -139,6 +140,7 @@ public class ArraySet<T> extends AbstractSet<T> implements NavigableSet<T> {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean contains(Object x) {
 		if (x == null && comp == null) {
 			throw new NullPointerException("Not supported null values in this set");
