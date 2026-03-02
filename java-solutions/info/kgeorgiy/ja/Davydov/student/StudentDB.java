@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BinaryOperator;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import info.kgeorgiy.java.advanced.student.Group;
@@ -61,19 +62,23 @@ public class StudentDB implements GroupQuery {
         return students.stream().sorted(STUDENTS_COMPARATOR_BY_NAME).toList();
     }
 
+     private List<Student> findStudentsByPredicate(Collection<Student> students, Predicate<Student> predicate) {
+        return sortStudentsByName(students.stream().filter(predicate).toList());
+    }
+
     @Override
     public List<Student> findStudentsByFirstName(Collection<Student> students, String name) {
-        return sortStudentsByName(students.stream().filter(x -> x.firstName().equals(name)).toList());
+        return findStudentsByPredicate(students, x -> x.firstName().equals(name));
     }
 
     @Override
     public List<Student> findStudentsByLastName(Collection<Student> students, String name) {
-        return sortStudentsByName(students.stream().filter(x -> x.lastName().equals(name)).toList());
+        return findStudentsByPredicate(students, x -> x.lastName().equals(name));
     }
 
     @Override
     public List<Student> findStudentsByGroup(Collection<Student> students, GroupName group) {
-        return sortStudentsByName(students.stream().filter(x -> x.groupName().equals(group)).toList());
+        return findStudentsByPredicate(students, x -> x.groupName().equals(group));
     }
 
     @Override
