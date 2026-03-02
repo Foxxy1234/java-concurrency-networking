@@ -9,6 +9,8 @@ import java.util.TreeSet;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import info.kgeorgiy.java.advanced.student.Group;
@@ -57,17 +59,21 @@ public class StudentDB implements GroupQuery {
         return students.stream().max(Comparator.naturalOrder()).map(Student::firstName).orElse("");
     }
 
+    private List<Student> sortStudents(Collection<Student> students, Comparator<Student> comp) {
+        return students.stream().sorted(comp).toList();
+    }
+
     @Override
     public List<Student> sortStudentsById(Collection<Student> students) {
-        return students.stream().sorted(Comparator.naturalOrder()).toList();
+        return sortStudents(students, Comparator.naturalOrder());
     }
 
     @Override
     public List<Student> sortStudentsByName(Collection<Student> students) {
-        return students.stream().sorted(STUDENTS_COMPARATOR_BY_NAME).toList();
+        return sortStudents(students, STUDENTS_COMPARATOR_BY_NAME);
     }
 
-     private List<Student> findStudentsByPredicate(Collection<Student> students, Predicate<Student> predicate) {
+    private List<Student> findStudentsByPredicate(Collection<Student> students, Predicate<Student> predicate) {
         return sortStudentsByName(students.stream().filter(predicate).toList());
     }
 
@@ -93,12 +99,18 @@ public class StudentDB implements GroupQuery {
                         BinaryOperator.minBy(Comparable::compareTo)));
     }
 
+    private List<Group> getGroupsWithSort(Collection<Student> students, UnaryOperator<List<Student>> sorter) {
+        return students.stream()
+                .collect(Collectors.groupingBy(Student::groupName))
+                .entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(x -> new Group(x.getKey(), sorter.apply(x.getValue())))
+                .toList();
+    }
+
     @Override
     public List<Group> getGroupsByName(Collection<Student> students) {
-        return students.stream().collect(Collectors.groupingBy(Student::groupName)).entrySet().stream()
-                .sorted(Map.Entry.comparingByKey())
-                .map(e -> new Group(e.getKey(), sortStudentsByName(e.getValue())))
-                .toList();
+        return getGroupsWithSort(students, this::sortStudentsByName);
     }
 
     @Override
