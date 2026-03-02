@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -22,24 +23,28 @@ public class StudentDB implements GroupQuery {
             .thenComparing(Student::firstName, Comparator.reverseOrder())
             .thenComparingInt(Student::id);
 
+    private <T> List<T> mapStudents(List<Student> students, Function<Student, T> func) {
+        return students.stream().map(func).toList();
+    }
+
     @Override
     public List<String> getFirstNames(List<Student> students) {
-        return students.stream().map(Student::firstName).toList();
+        return mapStudents(students, Student::firstName);
     }
 
     @Override
     public List<String> getLastNames(List<Student> students) {
-        return students.stream().map(Student::lastName).toList();
+        return mapStudents(students, Student::lastName);
     }
 
     @Override
     public List<GroupName> getGroupNames(List<Student> students) {
-        return students.stream().map(Student::groupName).toList();
+        return mapStudents(students, Student::groupName);
     }
 
     @Override
     public List<String> getFullNames(List<Student> students) {
-        return students.stream().map(x -> x.firstName() + " " + x.lastName()).toList();
+        return mapStudents(students, x -> x.firstName() + " " + x.lastName());
     }
 
     @Override
