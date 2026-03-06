@@ -56,8 +56,11 @@ public class ArraySet<T> extends AbstractSet<T> implements NavigableSet<T> {
     }
 
     private int compare(T a, T b) {
-        Comparator<? super T> c = comp != null ? comp : Collections.reverseOrder(Collections.reverseOrder());
-        return c.compare(a, b);
+        if (comp != null) {
+            return comp.compare(a, b);
+        }
+        Comparator<T> natural = Collections.reverseOrder(Collections.reverseOrder());
+        return natural.compare(a, b);
     }
 
     @Override
