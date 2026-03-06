@@ -114,10 +114,7 @@ public class StudentDB implements GroupQuery {
 
     @Override
     public List<Group> getGroupsById(Collection<Student> students) {
-        return students.stream().collect(Collectors.groupingBy(Student::groupName)).entrySet().stream()
-                .sorted(Map.Entry.comparingByKey())
-                .map(e -> new Group(e.getKey(), sortStudentsById(e.getValue())))
-                .toList();
+        return getGroupsWithSort(students, this::sortStudentsById);
     }
 
     @Override
