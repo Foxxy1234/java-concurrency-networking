@@ -32,6 +32,7 @@ public class ArraySet<T> extends AbstractSet<T> implements NavigableSet<T> {
         this(Collections.emptyList(), null);
     }
 
+    // :NOTE: cp
     private int findElementHigher(T x) {
         if (x == null && comp == null) {
             throw new NullPointerException("Not supported null values in this set");
