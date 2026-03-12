@@ -69,7 +69,7 @@ public class StudentDB implements GroupQuery {
 
     private static <T> Stream<Student> filteredStudentsByField(final Collection<Student> students,
             final Function<Student, T> fieldGetter, final T value) {
-        return students.stream().filter(s -> value.equals(fieldGetter.apply(s)));
+        return students.stream().filter(s -> Objects.equals(fieldGetter.apply(s), value));
     }
 
     private static <T> List<Student> findStudentsByField(final Collection<Student> students,
@@ -97,7 +97,7 @@ public class StudentDB implements GroupQuery {
     public Map<String, String> findStudentNamesByGroup(final Collection<Student> students, final GroupName group) {
         return filteredStudentsByField(students, Student::groupName, group)
                 .collect(Collectors.toMap(Student::lastName, Student::firstName,
-                        BinaryOperator.minBy(Comparable::compareTo)));
+                        BinaryOperator.minBy(String::compareTo)));
     }
 
     private static Map<GroupName, List<Student>> groupStudents(final Collection<Student> students) {
@@ -124,7 +124,7 @@ public class StudentDB implements GroupQuery {
         return getGroupsWithSort(students, this::sortStudentsById);
     }
 
-    private static <T extends Comparable<T>> GroupName getLargestGroupBy(
+    private static <T extends Comparable<? super T>> GroupName getLargestGroupBy(
             final Collection<Student> students,
             final Function<List<Student>, T> calculateValue,
             final Comparator<GroupName> tieBreaker) {
