@@ -1,16 +1,10 @@
 package info.kgeorgiy.ja.Davydov.student;
 
-import info.kgeorgiy.java.advanced.student.Group;
-import info.kgeorgiy.java.advanced.student.GroupName;
-import info.kgeorgiy.java.advanced.student.GroupQuery;
-import info.kgeorgiy.java.advanced.student.Student;
+import info.kgeorgiy.java.advanced.student.*;
 
 import java.util.*;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.function.*;
+import java.util.stream.*;
 
 public class StudentDB implements GroupQuery {
 
