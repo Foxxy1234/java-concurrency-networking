@@ -55,12 +55,23 @@ public class NestedTreeSpliterator<T> implements Spliterator<T> {
         }
     }
 
+    private Spliterator<T> trySplitWhenSizeOne() {
+        List<T> copyList = currentList;
+        int copyIndex = currentIndex;
+        if (!loadNextList()) {
+            return null;
+        } else {
+            return new NestedTreeSpliterator<>(Spliterators.emptySpliterator(), baseCharacteristics, copyList,
+                    copyIndex, copyIndex + 1);
+        }
+    }
+
     @Override
     public Spliterator<T> trySplit() {
         if (currentList != null && currentIndex < currentEnd) {
             int remaining = currentEnd - currentIndex;
             if (remaining <= 1) {
-                return null;
+                return trySplitWhenSizeOne();
             }
             int middle = currentIndex + remaining / 2;
             NestedTreeSpliterator<T> child = new NestedTreeSpliterator<>(Spliterators.emptySpliterator(),
@@ -78,7 +89,7 @@ public class NestedTreeSpliterator<T> implements Spliterator<T> {
         }
         int remaining = currentEnd - currentIndex;
         if (remaining <= 1) {
-            return null;
+            return trySplitWhenSizeOne();
         }
         int middle = currentIndex + remaining / 2;
         NestedTreeSpliterator<T> child = new NestedTreeSpliterator<>(Spliterators.emptySpliterator(),
@@ -91,7 +102,7 @@ public class NestedTreeSpliterator<T> implements Spliterator<T> {
     public long estimateSize() {
         long sourceSize = source.estimateSize();
         long currentSize = currentEnd - currentIndex;
-        if (sourceSize == Long.MAX_VALUE || Long.MAX_VALUE - sourceSize < currentSize) {
+        if (sourceSize == Long.MAX_VALUE) {
             return Long.MAX_VALUE;
         }
         return sourceSize + currentSize;

@@ -32,6 +32,7 @@ public class StudentDB implements GroupQuery {
         return mapStudents(students, Student::groupName).toList();
     }
 
+    // :NOTE: toList
     @Override
     public List<String> getFullNames(final List<Student> students) {
         return mapStudents(students, student -> student.firstName() + " " + student.lastName()).toList();
@@ -51,6 +52,7 @@ public class StudentDB implements GroupQuery {
         return stream.sorted(STUDENTS_COMPARATOR_BY_NAME);
     }
 
+    // :NOTE: copy-paste
     @Override
     public List<Student> sortStudentsById(final Collection<Student> students) {
         return students.stream().sorted(Comparator.naturalOrder()).toList();
@@ -140,6 +142,7 @@ public class StudentDB implements GroupQuery {
     public GroupName getLargestGroupFirstName(final Collection<Student> students) {
         return getLargestGroupBy(
                 students,
+                // :NOTE: each time
                 list -> mapStudents(list, Student::firstName).distinct().count(),
                 Comparator.reverseOrder());
     }
