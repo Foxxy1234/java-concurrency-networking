@@ -127,12 +127,12 @@ public class StudentDB implements GroupQuery {
     private static <T extends Comparable<? super T>> GroupName getLargestGroupBy(
             final Collection<Student> students,
             final Function<List<Student>, T> calculateValue,
-            final Comparator<GroupName> tieBreaker) {
+            final Comparator<GroupName> secondComparator) {
         return groupStudents(students)
                 .entrySet().stream()
                 .max(Comparator.<Map.Entry<GroupName, List<Student>>, T>comparing(
-                        e -> calculateValue.apply(e.getValue()))
-                        .thenComparing(Map.Entry::getKey, tieBreaker))
+                        x -> calculateValue.apply(x.getValue()))
+                        .thenComparing(Map.Entry::getKey, secondComparator))
                 .map(Map.Entry::getKey)
                 .orElse(null);
     }
@@ -146,7 +146,7 @@ public class StudentDB implements GroupQuery {
     public GroupName getLargestGroupFirstName(final Collection<Student> students) {
         return getLargestGroupBy(
                 students,
-                list -> list.stream().map(Student::firstName).distinct().count(),
+                list -> mapStudents(list, Student::firstName).distinct().count(),
                 Comparator.reverseOrder());
     }
 }
