@@ -57,13 +57,7 @@ public class NestedTreeSpliterator<T> implements Spliterator<T> {
 
     @Override
     public Spliterator<T> trySplit() {
-        Spliterator<List<T>> prefix = source.trySplit();
-        if (prefix == null) {
-            if (currentList == null || currentIndex >= currentEnd) {
-                if (!loadNextList()) {
-                    return null;
-                }
-            }
+        if (currentList != null && currentIndex < currentEnd) {
             int remaining = currentEnd - currentIndex;
             if (remaining <= 1) {
                 return null;
@@ -74,7 +68,23 @@ public class NestedTreeSpliterator<T> implements Spliterator<T> {
             currentIndex = middle;
             return child;
         }
-        return new NestedTreeSpliterator<>(prefix, baseCharacteristics, null, 0, 0);
+
+        Spliterator<List<T>> prefix = source.trySplit();
+        if (prefix != null) {
+            return new NestedTreeSpliterator<>(prefix, baseCharacteristics, null, 0, 0);
+        }
+        if (!loadNextList()) {
+            return null;
+        }
+        int remaining = currentEnd - currentIndex;
+        if (remaining <= 1) {
+            return null;
+        }
+        int middle = currentIndex + remaining / 2;
+        NestedTreeSpliterator<T> child = new NestedTreeSpliterator<>(Spliterators.emptySpliterator(),
+                baseCharacteristics, currentList, currentIndex, middle);
+        currentIndex = middle;
+        return child;
     }
 
     @Override

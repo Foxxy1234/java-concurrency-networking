@@ -44,8 +44,6 @@ public abstract class AbstractSizedTreeSpliterator<T, N> extends AbstractTreeSpl
                 deque.pop();
                 childQueue.addLast(first);
                 middle -= firstSize;
-            } else if (isLeaf(first)) {
-                break;
             } else {
                 deque.pop();
                 traverseBranch(deque, first);

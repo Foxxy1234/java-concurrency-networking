@@ -5,7 +5,6 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 
 import info.kgeorgiy.java.advanced.streams.Trees;
-import info.kgeorgiy.java.advanced.streams.Trees.Binary;
 
 public abstract class AbstractTreeSpliterator<T, N> implements Spliterator<T> {
     protected static boolean isLeaf(Object node) {
