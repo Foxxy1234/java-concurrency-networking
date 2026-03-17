@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.Consumer;
-
 public class NestedTreeSpliterator<T> implements Spliterator<T> {
     private final Spliterator<List<T>> source;
     private final int baseCharacteristics;

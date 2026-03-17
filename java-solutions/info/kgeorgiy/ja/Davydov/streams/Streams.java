@@ -63,49 +63,62 @@ public class Streams implements HardStreams {
         }
     }
 
-    @Override
-    public <T> Collector<T, ?, Optional<T>> first() {
+    private <T> Collector<T, ?, Optional<T>> firstOrLast(boolean isFirst) {
         return Collector.of(Ref<T>::new, (ref, nw) -> {
-            if (!ref.hasValue) {
+            if (!ref.hasValue || !isFirst) {
                 ref.value = nw;
                 ref.hasValue = true;
             }
-        }, (a, b) -> a.hasValue ? a : b, ref -> ref.hasValue ? Optional.ofNullable(ref.value) : Optional.empty(),
+        }, (a, b) -> isFirst ? (a.hasValue ? a : b) : (b.hasValue ? b : a),
+                ref -> ref.hasValue ? Optional.ofNullable(ref.value) : Optional.empty(),
                 Collector.Characteristics.CONCURRENT);
+    }
+
+    @Override
+    public <T> Collector<T, ?, Optional<T>> first() {
+        return firstOrLast(true);
     }
 
     @Override
     public <T> Collector<T, ?, Optional<T>> last() {
-        return Collector.of(Ref<T>::new, (ref, nw) -> {
-            ref.value = nw;
-            ref.hasValue = true;
-        }, (a, b) -> b.hasValue ? b : a, ref -> ref.hasValue ? Optional.ofNullable(ref.value) : Optional.empty(),
-                Collector.Characteristics.CONCURRENT);
+        return firstOrLast(false);
     }
 
     @Override
     public <T> Collector<T, ?, Optional<T>> middle() {
-        return Collector.of(NormalLinkedList<T>::new, NormalLinkedList<T>::add, NormalLinkedList<T>::merge,
+        return Collector.of(NormalLinkedList<T>::new,
+                NormalLinkedList<T>::add,
+                NormalLinkedList<T>::merge,
                 list -> list.size == 0 ? Optional.empty() : Optional.ofNullable(list.get(list.size / 2)),
                 Collector.Characteristics.CONCURRENT);
     }
 
-    private int commonPrefixSize(CharSequence a, CharSequence b) {
+    private int commonPrefixOrSuffixSize(CharSequence a, CharSequence b, boolean isPrefix) {
         int i = 0;
-        while (i < a.length() && i < b.length() && a.charAt(i) == b.charAt(i)) {
+        BiFunction<CharSequence, Integer, Integer> pos = (cs, ind) -> isPrefix ? ind : cs.length() - 1 - ind;
+        while (i < a.length() && i < b.length() && a.charAt(pos.apply(a, i)) == b.charAt(pos.apply(b, i))) {
             i++;
         }
         return i;
     }
 
-    @Override
-    public Collector<CharSequence, ?, String> commonPrefix() {
+    private void keepOnlyCommonPart(StringBuilder value, CharSequence other, boolean isPrefix) {
+        int commonSize = commonPrefixOrSuffixSize(value, other, isPrefix);
+        if (isPrefix) {
+            value.delete(commonSize, value.length());
+        } else {
+            value.delete(0, value.length() - commonSize);
+        }
+    }
+
+    public Collector<CharSequence, ?, String> commonSomething(boolean isPrefix) {
         return Collector.of(() -> new Ref<>(new StringBuilder()), (acc, nw) -> {
             if (!acc.hasValue) {
                 acc.value.append(nw);
                 acc.hasValue = true;
-            } else
-                acc.value.delete(commonPrefixSize(acc.value, nw), acc.value.length());
+            } else {
+                keepOnlyCommonPart(acc.value, nw, isPrefix);
+            }
         }, (a, b) -> {
             if (!a.hasValue) {
                 return b;
@@ -113,16 +126,20 @@ public class Streams implements HardStreams {
             if (!b.hasValue) {
                 return a;
             }
-            a.value.delete(commonPrefixSize(a.value, b.value), a.value.length());
+            keepOnlyCommonPart(a.value, b.value, isPrefix);
             return a;
         }, acc -> acc.hasValue ? acc.value.toString() : "", Collector.Characteristics.CONCURRENT,
                 Collector.Characteristics.UNORDERED);
     }
 
     @Override
+    public Collector<CharSequence, ?, String> commonPrefix() {
+        return commonSomething(true);
+    }
+
+    @Override
     public Collector<CharSequence, ?, String> commonSuffix() {
-        return Collectors.mapping(cs -> (CharSequence) new StringBuilder(cs).reverse(),
-                Collectors.collectingAndThen(commonPrefix(), s -> new StringBuilder(s).reverse().toString()));
+        return commonSomething(false);
     }
 
     @Override
@@ -169,17 +186,17 @@ public class Streams implements HardStreams {
 
     @Override
     public <T> Spliterator<T> binaryTreeSpliterator(Binary<T> tree) {
-        return new BinaryTreeSpliterator<>(tree);
+        return TreeSpliterator.binary(tree);
     }
 
     @Override
     public <T> Spliterator<T> sizedBinaryTreeSpliterator(SizedBinary<T> tree) {
-        return new SizedBinaryTreeSpliterator<>(tree);
+        return SizedTreeSpliterator.binary(tree);
     }
 
     @Override
     public <T> Spliterator<T> naryTreeSpliterator(Nary<T> tree) {
-        return new NaryTreeSpliterator<>(tree);
+        return TreeSpliterator.nary(tree);
     }
 
     @Override
