@@ -19,7 +19,8 @@ public class ClassImplementor extends BaseImplementor {
 
         boolean accessible = false;
         for (final Constructor<?> constructor : constructors) {
-            if (Modifier.isPrivate(constructor.getModifiers()) || !areTypesAccessibles(constructor.getParameterTypes(), token)) {
+            if (Modifier.isPrivate(constructor.getModifiers())
+                    || !areTypesAccessibles(constructor.getParameterTypes(), token)) {
                 continue;
             }
             accessible = true;
@@ -73,10 +74,10 @@ public class ClassImplementor extends BaseImplementor {
     private String generateConstructor(final Constructor<?> constructor, final String implName) {
         final StringBuilder sb = new StringBuilder();
         sb.append("    public ").append(implName).append('(');
-        parseArguments(sb, constructor.getParameterTypes(), true);
-        parseExceptions(sb, constructor.getExceptionTypes());
+        generateArguments(sb, constructor.getParameterTypes(), true);
+        generateExceptions(sb, constructor.getExceptionTypes());
         sb.append(" {\n        super(");
-        parseArguments(sb, constructor.getParameterTypes(), false);
+        generateArguments(sb, constructor.getParameterTypes(), false);
         sb.append(";\n    }\n");
         return sb.toString();
     }

@@ -1,23 +1,38 @@
 package info.kgeorgiy.ja.Davydov.implementor;
 
-import info.kgeorgiy.java.advanced.implementor.Impler;
 import info.kgeorgiy.java.advanced.implementor.ImplerException;
+import info.kgeorgiy.java.advanced.implementor.tools.JarImpler;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
-public class Implementor implements Impler {
+public class Implementor implements JarImpler {
+
+    private static final String JAVA_FILE = ".java";
+
+    private static void printUsage() {
+        System.err.println("Usage:\n" + "  Implementor <class-name>\n" + "  Implementor -jar <class-name> <jar-file>");
+    }
 
     public static void main(final String[] args) {
-        if (args == null || args.length != 1) {
-            System.err.println("Usage: Implementor <class-name>");
+        if (args == null) {
+            printUsage();
             return;
         }
         try {
-            final Class<?> token = Class.forName(args[0]);
-            final Path root = Path.of(".");
-            new Implementor().implement(token, root);
+            if (args.length == 1) {
+                final Class<?> token = Class.forName(args[0]);
+                final Path root = Path.of(".");
+                new Implementor().implement(token, root);
+            } else if (args.length == 3 && "-jar".equals(args[0])) {
+                final Class<?> token = Class.forName(args[1]);
+                final Path jarFile = Path.of(args[2]);
+                new Implementor().implementJar(token, jarFile);
+            } else {
+                printUsage();
+            }
         } catch (final ClassNotFoundException e) {
             System.err.println("Class not found: " + e.getMessage());
         } catch (final ImplerException e) {
@@ -30,7 +45,7 @@ public class Implementor implements Impler {
         if (token == null || root == null) {
             throw new IllegalArgumentException("Token and root path must not be null");
         }
-        final Path outputFile = getPathByToken(token, root);
+        final Path outputFile = JarCreationTools.getPathWithImpl(token, root, JAVA_FILE);
         try {
             Files.createDirectories(outputFile.getParent());
         } catch (IOException e) {
@@ -44,9 +59,18 @@ public class Implementor implements Impler {
         }
     }
 
-    private Path getPathByToken(final Class<?> token, final Path root) {
-        final String path = token.getPackageName().replace('.', File.separatorChar);
-        final String name = token.getSimpleName() + "Impl.java";
-        return root.resolve(path).resolve(name);
+    @Override
+    public void implementJar(final Class<?> token, final Path jarFile) throws ImplerException {
+        if (token == null || jarFile == null) {
+            throw new IllegalArgumentException("Token and jarFile must not be null");
+        }
+        final Path root = JarCreationTools.createTmpRoot(jarFile);
+        try {
+            implement(token, root);
+            JarCreationTools.compiler(token, root, List.of(token, Implementor.class, ImplerException.class));
+            JarCreationTools.writeJar(token, root, jarFile);
+        } finally {
+            JarCreationTools.deleteRecursively(root);
+        }
     }
 }

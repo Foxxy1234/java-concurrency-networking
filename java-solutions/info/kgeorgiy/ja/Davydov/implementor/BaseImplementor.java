@@ -67,7 +67,7 @@ public abstract class BaseImplementor {
     protected String methodKey(final Method method) {
         final StringBuilder sb = new StringBuilder();
         sb.append(method.getName()).append('(');
-        parseArguments(sb, method.getParameterTypes(), true);
+        generateArguments(sb, method.getParameterTypes(), true);
         return sb.toString();
     }
 
@@ -82,7 +82,7 @@ public abstract class BaseImplementor {
                 .append(method.getName()).append('(');
     }
 
-    protected void parseArguments(StringBuilder sb, Class<?>[] parametrs, boolean withNames) {
+    protected void generateArguments(StringBuilder sb, Class<?>[] parametrs, boolean withNames) {
         for (int i = 0; i < parametrs.length; i++) {
             if (i > 0) {
                 sb.append(", ");
@@ -92,7 +92,7 @@ public abstract class BaseImplementor {
         sb.append(')');
     }
 
-    protected void parseExceptions(StringBuilder sb, final Class<?>[] exceptions) {
+    protected void generateExceptions(StringBuilder sb, final Class<?>[] exceptions) {
         for (int i = 0; i < exceptions.length; i++) {
             sb.append(i == 0 ? " throws " : ", ").append(exceptions[i].getCanonicalName());
         }
@@ -105,8 +105,8 @@ public abstract class BaseImplementor {
 
     protected void generateMethod(StringBuilder sb, final Method method, final String modifiers) {
         generateModifiers(sb, method, modifiers);
-        parseArguments(sb, method.getParameterTypes(), true);
-        parseExceptions(sb, method.getExceptionTypes());
+        generateArguments(sb, method.getParameterTypes(), true);
+        generateExceptions(sb, method.getExceptionTypes());
         generateDefinition(sb, method);
     }
 }
