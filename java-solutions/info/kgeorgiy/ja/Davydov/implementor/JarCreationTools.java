@@ -142,13 +142,14 @@ final class JarCreationTools {
      * @return list of classpath paths.
      */
     private static List<Path> getClassPath(final List<Class<?>> dependencies) {
-        return dependencies.stream().map(dependency -> {
-            try {
-                return Path.of(dependency.getProtectionDomain().getCodeSource().getLocation().toURI());
-            } catch (final URISyntaxException e) {
-                throw new AssertionError(e);
-            }
-        }).toList();
+        return dependencies.stream().map(dependency -> dependency.getProtectionDomain().getCodeSource())
+                .filter(codeSource -> codeSource != null).map(codeSource -> {
+                    try {
+                        return Path.of(codeSource.getLocation().toURI());
+                    } catch (final URISyntaxException e) {
+                        throw new AssertionError(e);
+                    }
+                }).toList();
     }
 
     /**

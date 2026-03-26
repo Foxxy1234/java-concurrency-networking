@@ -19,6 +19,28 @@ public abstract class BaseImplementor {
     abstract String generateImplementation(Class<?> token) throws ImplerException;
 
     /**
+     * Escapes Unicode characters in string to Java source code format. Characters
+     * outside ASCII range (0-127) are converted to \\uXXXX escape sequences.
+     *
+     * @param str string to escape.
+     * @return escaped string suitable for Java source code.
+     */
+    protected static String escapeUnicode(final String str) {
+        if (str == null) {
+            return null;
+        }
+        final StringBuilder sb = new StringBuilder();
+        for (final char c : str.toCharArray()) {
+            if (c >= 128) {
+                sb.append(String.format("\\u%04x", (int) c));
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
      * Throws an {@link ImplerException} when a validation condition is met.
      *
      * @param condition condition that indicates a validation failure.
@@ -144,8 +166,8 @@ public abstract class BaseImplementor {
      */
     protected void generateClassHeader(StringBuilder sb, final Class<?> token, final String name,
             final String relationKeyword) {
-        sb.append("public class ").append(name).append("Impl ").append(relationKeyword).append(" ")
-                .append(token.getCanonicalName()).append(" {").append(NL);
+        sb.append("public class ").append(escapeUnicode(name)).append("Impl ").append(relationKeyword).append(" ")
+                .append(escapeUnicode(token.getCanonicalName())).append(" {").append(NL);
     }
 
     /**
@@ -156,8 +178,8 @@ public abstract class BaseImplementor {
      * @param modifiers additional modifiers string.
      */
     protected void generateModifiers(StringBuilder sb, final Method method, final String modifiers) {
-        sb.append("    public ").append(modifiers).append(method.getReturnType().getCanonicalName()).append(' ')
-                .append(method.getName()).append('(');
+        sb.append("    public ").append(modifiers).append(escapeUnicode(method.getReturnType().getCanonicalName()))
+                .append(' ').append(escapeUnicode(method.getName())).append('(');
     }
 
     /**
@@ -172,7 +194,7 @@ public abstract class BaseImplementor {
             if (i > 0) {
                 sb.append(", ");
             }
-            sb.append(withNames ? parametrs[i].getCanonicalName() : "").append(" arg").append(i);
+            sb.append(withNames ? escapeUnicode(parametrs[i].getCanonicalName()) : "").append(" arg").append(i);
         }
         sb.append(')');
     }
@@ -185,7 +207,7 @@ public abstract class BaseImplementor {
      */
     protected void generateExceptions(StringBuilder sb, final Class<?>[] exceptions) {
         for (int i = 0; i < exceptions.length; i++) {
-            sb.append(i == 0 ? " throws " : ", ").append(exceptions[i].getCanonicalName());
+            sb.append(i == 0 ? " throws " : ", ").append(escapeUnicode(exceptions[i].getCanonicalName()));
         }
     }
 

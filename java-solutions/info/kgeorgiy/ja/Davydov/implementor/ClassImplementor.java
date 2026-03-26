@@ -21,8 +21,8 @@ public class ClassImplementor extends BaseImplementor {
             throws ImplerException {
         final Constructor<?>[] constructors = token.getDeclaredConstructors();
         if (constructors.length == 0) {
-            sb.append("    public ").append(nameImpl).append("() {").append(NL).append("        super();").append(NL)
-                    .append("    }").append(NL);
+            sb.append("    public ").append(escapeUnicode(nameImpl)).append("() {").append(NL)
+                    .append("        super();").append(NL).append("    }").append(NL);
             return;
         }
 
@@ -102,7 +102,7 @@ public class ClassImplementor extends BaseImplementor {
      */
     private String generateConstructor(final Constructor<?> constructor, final String implName) {
         final StringBuilder sb = new StringBuilder();
-        sb.append("    public ").append(implName).append('(');
+        sb.append("    public ").append(escapeUnicode(implName)).append('(');
         generateArguments(sb, constructor.getParameterTypes(), true);
         generateExceptions(sb, constructor.getExceptionTypes());
         sb.append(" {").append(NL).append("        super(");
