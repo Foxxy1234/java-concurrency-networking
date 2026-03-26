@@ -9,11 +9,20 @@ import java.util.*;
 
 public class ClassImplementor extends BaseImplementor {
 
+    /**
+     * Appends all accessible constructors for generated implementation class.
+     *
+     * @param sb       target source builder.
+     * @param token    class token being extended.
+     * @param nameImpl generated implementation class name.
+     * @throws ImplerException if there are no accessible constructors.
+     */
     private void generateConstructors(StringBuilder sb, final Class<?> token, final String nameImpl)
             throws ImplerException {
         final Constructor<?>[] constructors = token.getDeclaredConstructors();
         if (constructors.length == 0) {
-            sb.append("    public ").append(nameImpl).append("() {\n").append("        super();\n").append("    }\n");
+            sb.append("    public ").append(nameImpl).append("() {").append(NL).append("        super();").append(NL)
+                    .append("    }").append(NL);
             return;
         }
 
@@ -31,6 +40,13 @@ public class ClassImplementor extends BaseImplementor {
         }
     }
 
+    /**
+     * Appends implementations for all abstract methods that must be overridden.
+     *
+     * @param sb    target source builder.
+     * @param token class token being extended.
+     * @throws ImplerException if an abstract method uses inaccessible types.
+     */
     private void generateAbstractMethods(StringBuilder sb, final Class<?> token) throws ImplerException {
         final Map<String, Method> methods = collectAbstractMethods(token);
         for (final Method method : methods.values()) {
@@ -39,6 +55,12 @@ public class ClassImplementor extends BaseImplementor {
         }
     }
 
+    /**
+     * Collects abstract methods that require implementation in generated class.
+     *
+     * @param token class token being extended.
+     * @return ordered map of method keys to abstract methods.
+     */
     private Map<String, Method> collectAbstractMethods(final Class<?> token) {
         final Map<String, Method> result = new LinkedHashMap<>();
         final List<Class<?>> classes = new ArrayList<>();
@@ -49,7 +71,7 @@ public class ClassImplementor extends BaseImplementor {
         for (final Class<?> currentClass : classes) {
             for (final Method method : currentClass.getDeclaredMethods()) {
                 final int modifiers = method.getModifiers();
-                if (Modifier.isStatic(modifiers) || Modifier.isPrivate(modifiers)) {
+                if (Modifier.isPrivate(modifiers)) {
                     continue;
                 }
                 final String key = methodKey(method);
@@ -71,17 +93,27 @@ public class ClassImplementor extends BaseImplementor {
         return result;
     }
 
+    /**
+     * Generates source code for constructor delegating to {@code super(...)}.
+     *
+     * @param constructor source constructor token.
+     * @param implName    generated implementation class name.
+     * @return generated constructor source code.
+     */
     private String generateConstructor(final Constructor<?> constructor, final String implName) {
         final StringBuilder sb = new StringBuilder();
         sb.append("    public ").append(implName).append('(');
         generateArguments(sb, constructor.getParameterTypes(), true);
         generateExceptions(sb, constructor.getExceptionTypes());
-        sb.append(" {\n        super(");
+        sb.append(" {").append(NL).append("        super(");
         generateArguments(sb, constructor.getParameterTypes(), false);
-        sb.append(";\n    }\n");
+        sb.append(";").append(NL).append("    }").append(NL);
         return sb.toString();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String generateImplementation(final Class<?> token) throws ImplerException {
         validateToken(token);
@@ -90,7 +122,7 @@ public class ClassImplementor extends BaseImplementor {
         generateClassHeader(sb, token, token.getSimpleName(), "extends");
         generateConstructors(sb, token, token.getSimpleName() + "Impl");
         generateAbstractMethods(sb, token);
-        sb.append("}\n");
+        sb.append("}").append(NL);
         return sb.toString();
     }
 }

@@ -9,6 +9,9 @@ import java.util.Set;
 
 public class InterfaceImplementor extends BaseImplementor {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String generateImplementation(final Class<?> token) throws ImplerException {
         validateToken(token);
@@ -29,7 +32,7 @@ public class InterfaceImplementor extends BaseImplementor {
             }
             generateMethod(sb, method, "");
         }
-        sb.append("}\n");
+        sb.append("}").append(NL);
         return sb.toString();
     }
 }

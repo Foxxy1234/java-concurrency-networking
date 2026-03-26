@@ -11,11 +11,21 @@ import java.util.List;
 public class Implementor implements JarImpler {
 
     private static final String JAVA_FILE = ".java";
+    private static final String NL = System.lineSeparator();
 
+    /**
+     * Prints command line usage information.
+     */
     private static void printUsage() {
-        System.err.println("Usage:\n" + "  Implementor <class-name>\n" + "  Implementor -jar <class-name> <jar-file>");
+        System.err.println(
+                "Usage:" + NL + "  Implementor <class-name>" + NL + "  Implementor -jar <class-name> <jar-file>");
     }
 
+    /**
+     * Entry point for CLI execution.
+     *
+     * @param args command line arguments.
+     */
     public static void main(final String[] args) {
         if (args == null) {
             printUsage();
@@ -40,6 +50,9 @@ public class Implementor implements JarImpler {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void implement(final Class<?> token, final Path root) throws ImplerException {
         if (token == null || root == null) {
@@ -59,6 +72,9 @@ public class Implementor implements JarImpler {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void implementJar(final Class<?> token, final Path jarFile) throws ImplerException {
         if (token == null || jarFile == null) {
