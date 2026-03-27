@@ -83,18 +83,7 @@ public class NestedTreeSpliterator<T> implements Spliterator<T> {
         if (prefix != null) {
             return new NestedTreeSpliterator<>(prefix, baseCharacteristics, null, 0, 0);
         }
-        if (!loadNextList()) {
-            return null;
-        }
-        int remaining = currentEnd - currentIndex;
-        if (remaining <= 1) {
-            return trySplitWhenSizeOne();
-        }
-        int middle = currentIndex + remaining / 2;
-        NestedTreeSpliterator<T> child = new NestedTreeSpliterator<>(Spliterators.emptySpliterator(),
-                baseCharacteristics, currentList, currentIndex, middle);
-        currentIndex = middle;
-        return child;
+        return null;
     }
 
     @Override
