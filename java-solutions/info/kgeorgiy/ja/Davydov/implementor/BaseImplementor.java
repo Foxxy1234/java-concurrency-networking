@@ -5,9 +5,13 @@ import info.kgeorgiy.java.advanced.implementor.ImplerException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public abstract class BaseImplementor {
     protected static final String NL = System.lineSeparator();
+    protected static final String INDENT = "    ";
+    protected static final String DOUBLE_INDENT = INDENT + INDENT;
 
     /**
      * Generates source code for implementation of the specified token.
@@ -166,8 +170,15 @@ public abstract class BaseImplementor {
      */
     protected void generateClassHeader(StringBuilder sb, final Class<?> token, final String name,
             final String relationKeyword) {
-        sb.append("public class ").append(escapeUnicode(name)).append("Impl ").append(relationKeyword).append(" ")
-                .append(escapeUnicode(token.getCanonicalName())).append(" {").append(NL);
+        sb.append(String.join("", 
+                "public class ", 
+                escapeUnicode(name), 
+                "Impl ", 
+                relationKeyword, 
+                " ", 
+                escapeUnicode(token.getCanonicalName()), 
+                " {", 
+                NL));
     }
 
     /**
@@ -178,8 +189,14 @@ public abstract class BaseImplementor {
      * @param modifiers additional modifiers string.
      */
     protected void generateModifiers(StringBuilder sb, final Method method, final String modifiers) {
-        sb.append("    public ").append(modifiers).append(escapeUnicode(method.getReturnType().getCanonicalName()))
-                .append(' ').append(escapeUnicode(method.getName())).append('(');
+        sb.append(String.join("",
+                INDENT,
+                "public ",
+                modifiers,
+                escapeUnicode(method.getReturnType().getCanonicalName()),
+                " ",
+                escapeUnicode(method.getName()),
+                "("));
     }
 
     /**
@@ -190,13 +207,13 @@ public abstract class BaseImplementor {
      * @param withNames if {@code true}, appends type names before argument names.
      */
     protected void generateArguments(StringBuilder sb, Class<?>[] parametrs, boolean withNames) {
-        for (int i = 0; i < parametrs.length; i++) {
-            if (i > 0) {
-                sb.append(", ");
-            }
-            sb.append(withNames ? escapeUnicode(parametrs[i].getCanonicalName()) : "").append(" arg").append(i);
-        }
-        sb.append(')');
+        final String args = IntStream.range(0, parametrs.length)
+                .mapToObj(i -> String.join("",
+                        withNames ? escapeUnicode(parametrs[i].getCanonicalName()) : "",
+                        " arg",
+                        String.valueOf(i)))
+                .collect(Collectors.joining(", "));
+        sb.append(args).append(')');
     }
 
     /**
@@ -206,8 +223,11 @@ public abstract class BaseImplementor {
      * @param exceptions declared exception types.
      */
     protected void generateExceptions(StringBuilder sb, final Class<?>[] exceptions) {
-        for (int i = 0; i < exceptions.length; i++) {
-            sb.append(i == 0 ? " throws " : ", ").append(escapeUnicode(exceptions[i].getCanonicalName()));
+        if (exceptions.length > 0) {
+            final String exceptionList = IntStream.range(0, exceptions.length)
+                    .mapToObj(i -> escapeUnicode(exceptions[i].getCanonicalName()))
+                    .collect(Collectors.joining(", "));
+            sb.append(" throws ").append(exceptionList);
         }
     }
 
@@ -218,8 +238,10 @@ public abstract class BaseImplementor {
      * @param method implemented method token.
      */
     protected void generateDefinition(StringBuilder sb, final Method method) {
-        sb.append(" {").append(NL).append("        return ").append(defaultValue(method.getReturnType())).append(";")
-                .append(NL).append("    }").append(NL);
+        sb.append(String.join("",
+                " {", NL,
+                DOUBLE_INDENT, "return ", defaultValue(method.getReturnType()), ";", NL,
+                INDENT, "}", NL));
     }
 
     /**

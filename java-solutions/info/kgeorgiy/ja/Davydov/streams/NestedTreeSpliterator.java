@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.Consumer;
+
 public class NestedTreeSpliterator<T> implements Spliterator<T> {
     private final Spliterator<List<T>> source;
     private final int baseCharacteristics;
@@ -65,25 +66,32 @@ public class NestedTreeSpliterator<T> implements Spliterator<T> {
         }
     }
 
+    private Spliterator<T> splitCurrentList() {
+        int remaining = currentEnd - currentIndex;
+        if (remaining <= 1) {
+            return trySplitWhenSizeOne();
+        }
+        int middle = currentIndex + remaining / 2;
+        NestedTreeSpliterator<T> child = new NestedTreeSpliterator<>(Spliterators.emptySpliterator(),
+                baseCharacteristics, currentList, currentIndex, middle);
+        currentIndex = middle;
+        return child;
+    }
+
     @Override
     public Spliterator<T> trySplit() {
         if (currentList != null && currentIndex < currentEnd) {
-            int remaining = currentEnd - currentIndex;
-            if (remaining <= 1) {
-                return trySplitWhenSizeOne();
-            }
-            int middle = currentIndex + remaining / 2;
-            NestedTreeSpliterator<T> child = new NestedTreeSpliterator<>(Spliterators.emptySpliterator(),
-                    baseCharacteristics, currentList, currentIndex, middle);
-            currentIndex = middle;
-            return child;
+            return splitCurrentList();
         }
 
         Spliterator<List<T>> prefix = source.trySplit();
         if (prefix != null) {
             return new NestedTreeSpliterator<>(prefix, baseCharacteristics, null, 0, 0);
         }
-        return null;
+        if (!loadNextList()) {
+            return null;
+        }
+        return splitCurrentList();
     }
 
     @Override

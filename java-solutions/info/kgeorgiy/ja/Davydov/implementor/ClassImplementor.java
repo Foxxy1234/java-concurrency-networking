@@ -21,8 +21,8 @@ public class ClassImplementor extends BaseImplementor {
             throws ImplerException {
         final Constructor<?>[] constructors = token.getDeclaredConstructors();
         if (constructors.length == 0) {
-            sb.append("    public ").append(escapeUnicode(nameImpl)).append("() {").append(NL)
-                    .append("        super();").append(NL).append("    }").append(NL);
+            sb.append(String.join("", INDENT, "public ", escapeUnicode(nameImpl), "() {", NL, DOUBLE_INDENT, "super();",
+                    NL, INDENT, "}", NL));
             return;
         }
 
@@ -102,12 +102,12 @@ public class ClassImplementor extends BaseImplementor {
      */
     private String generateConstructor(final Constructor<?> constructor, final String implName) {
         final StringBuilder sb = new StringBuilder();
-        sb.append("    public ").append(escapeUnicode(implName)).append('(');
+        sb.append(String.join("", INDENT, "public ", escapeUnicode(implName), "("));
         generateArguments(sb, constructor.getParameterTypes(), true);
         generateExceptions(sb, constructor.getExceptionTypes());
-        sb.append(" {").append(NL).append("        super(");
+        sb.append(String.join("", " {", NL, DOUBLE_INDENT, "super("));
         generateArguments(sb, constructor.getParameterTypes(), false);
-        sb.append(";").append(NL).append("    }").append(NL);
+        sb.append(String.join("", ";", NL, INDENT, "}", NL));
         return sb.toString();
     }
 
