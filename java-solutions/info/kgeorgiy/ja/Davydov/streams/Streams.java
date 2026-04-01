@@ -75,12 +75,12 @@ public class Streams implements HardStreams {
     }
 
     @Override
-    public <T> Collector<T, ?, Optional<T>> first() {
+    public <T> Collector<T, ?, Optional<T>> first() { // :NOTE: Collectors.reducing
         return firstOrLast(true);
     }
 
     @Override
-    public <T> Collector<T, ?, Optional<T>> last() {
+    public <T> Collector<T, ?, Optional<T>> last() { // :NOTE: Collectors.reducing
         return firstOrLast(false);
     }
 
@@ -148,7 +148,7 @@ public class Streams implements HardStreams {
             if (arr.size() < k) {
                 arr.add(nw);
             }
-        }, (a, b) -> {
+        }, (_, _) -> {
             throw new IllegalStateException("Parallel not supported");
         }, list -> list);
     }
@@ -166,7 +166,7 @@ public class Streams implements HardStreams {
             arr.addLast(nw);
         }, (a, b) -> {
             throw new IllegalStateException("Parallel not supported");
-        }, deq -> new ArrayList<>(deq));
+        }, ArrayList::new);
     }
 
     @Override
