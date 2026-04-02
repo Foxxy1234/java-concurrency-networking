@@ -10,6 +10,9 @@ import java.util.function.Predicate;
 
 import info.kgeorgiy.java.advanced.iterative.ListIP;
 
+/**
+ * Implementation of {@link ListIP} using manual thread management.
+ */
 public class IterativeParallelism implements ListIP {
     @FunctionalInterface
     private interface TriFunction<A, B, C, R> {
@@ -71,6 +74,9 @@ public class IterativeParallelism implements ListIP {
         return combiner.apply(results);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T> int argMax(int threads, List<T> list, Comparator<? super T> comparator) throws InterruptedException {
         if (list.isEmpty()) {
@@ -87,11 +93,17 @@ public class IterativeParallelism implements ListIP {
         }, partResults -> partResults.stream().max(Comparator.comparing(list::get, comparator)).orElseThrow());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T> int argMin(int threads, List<T> list, Comparator<? super T> comparator) throws InterruptedException {
         return argMax(threads, list, comparator.reversed());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T> int indexOf(int threads, List<T> list, Predicate<? super T> predicate) throws InterruptedException {
         return parallelMap(threads, list, (a, b, c) -> {
@@ -105,6 +117,9 @@ public class IterativeParallelism implements ListIP {
         }, partResults -> partResults.stream().filter(index -> index >= 0).min(Integer::compareTo).orElse(-1));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T> int lastIndexOf(int threads, List<T> list, Predicate<? super T> predicate) throws InterruptedException {
         return parallelMap(threads, list, (a, b, c) -> {
@@ -118,6 +133,9 @@ public class IterativeParallelism implements ListIP {
         }, partResults -> partResults.stream().mapToInt(Integer::intValue).max().orElse(-1));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T> long sumIndices(int threads, List<? extends T> list, Predicate<? super T> predicate)
             throws InterruptedException {
@@ -132,6 +150,9 @@ public class IterativeParallelism implements ListIP {
         }, partResults -> partResults.stream().mapToLong(Long::longValue).sum());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T> List<T> filter(int threads, List<? extends T> list, Predicate<? super T> predicate)
             throws InterruptedException {
@@ -146,6 +167,9 @@ public class IterativeParallelism implements ListIP {
         }, partResults -> partResults.stream().flatMap(List::stream).toList());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T> int[] indices(int threads, List<? extends T> list, Predicate<? super T> predicate)
             throws InterruptedException {
@@ -160,6 +184,9 @@ public class IterativeParallelism implements ListIP {
         }, partResults -> partResults.stream().flatMap(List::stream).mapToInt(Integer::intValue).toArray());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T, U> List<U> map(int threads, List<? extends T> list, Function<? super T, ? extends U> function)
             throws InterruptedException {
