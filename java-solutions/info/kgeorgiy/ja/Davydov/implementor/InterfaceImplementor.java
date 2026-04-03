@@ -3,7 +3,6 @@ package info.kgeorgiy.ja.Davydov.implementor;
 import info.kgeorgiy.java.advanced.implementor.ImplerException;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,9 +19,7 @@ public class InterfaceImplementor extends BaseImplementor {
         generateClassHeader(sb, token, token.getSimpleName(), "implements");
         final Set<String> checked = new HashSet<>();
         for (final Method method : token.getMethods()) {
-            final int modifiers = method.getModifiers();
-            if (Modifier.isStatic(modifiers) || Modifier.isPrivate(modifiers) || method.isDefault()
-                    || !Modifier.isAbstract(modifiers)) {
+            if (shouldSkipMethod(method) || method.isDefault()) {
                 continue;
             }
             checkMethodTypesAccessible(method, token);

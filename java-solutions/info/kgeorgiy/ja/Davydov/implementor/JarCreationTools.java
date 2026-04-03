@@ -23,6 +23,7 @@ final class JarCreationTools {
      * Utility class constructor.
      */
     private JarCreationTools() {
+        throw new AssertionError("Utility class should not be instantiated");
     }
 
     /**
@@ -85,7 +86,7 @@ final class JarCreationTools {
         final String entryName = toJarEntryName(token);
         final Path classFile = getPathWithImpl(token, root, CLASS_FILE);
         if (!Files.isRegularFile(classFile)) {
-            throw new ImplerException("Compiled class not found: " + classFile);
+            throw new ImplerException("Compiled class not found or strange: " + classFile);
         }
         final Manifest manifest = new Manifest();
         manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");

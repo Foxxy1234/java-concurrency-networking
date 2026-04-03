@@ -88,6 +88,18 @@ public abstract class BaseImplementor {
     }
 
     /**
+     * Checks if a method should be skipped during implementation generation. Skips
+     * private and non-abstract methods.
+     *
+     * @param method method to check.
+     * @return {@code true} if method should be skipped.
+     */
+    protected boolean shouldSkipMethod(final Method method) {
+        final int modifiers = method.getModifiers();
+        return Modifier.isPrivate(modifiers) || !Modifier.isAbstract(modifiers);
+    }
+
+    /**
      * Checks whether a type is accessible from the specified context type.
      *
      * @param type    type to check.
@@ -147,7 +159,7 @@ public abstract class BaseImplementor {
     }
 
     /**
-     * Builds a unique key for method name and parameter types.
+     * Builds a unique key for method name and parameter types. (kinda namemangling)
      *
      * @param method method to key.
      * @return key string used for method deduplication.
@@ -170,15 +182,8 @@ public abstract class BaseImplementor {
      */
     protected void generateClassHeader(StringBuilder sb, final Class<?> token, final String name,
             final String relationKeyword) {
-        sb.append(String.join("", 
-                "public class ", 
-                escapeUnicode(name), 
-                "Impl ", 
-                relationKeyword, 
-                " ", 
-                escapeUnicode(token.getCanonicalName()), 
-                " {", 
-                NL));
+        sb.append(String.join("", "public class ", escapeUnicode(name), "Impl ", relationKeyword, " ",
+                escapeUnicode(token.getCanonicalName()), " {", NL));
     }
 
     /**
@@ -189,14 +194,8 @@ public abstract class BaseImplementor {
      * @param modifiers additional modifiers string.
      */
     protected void generateModifiers(StringBuilder sb, final Method method, final String modifiers) {
-        sb.append(String.join("",
-                INDENT,
-                "public ",
-                modifiers,
-                escapeUnicode(method.getReturnType().getCanonicalName()),
-                " ",
-                escapeUnicode(method.getName()),
-                "("));
+        sb.append(String.join("", INDENT, "public ", modifiers,
+                escapeUnicode(method.getReturnType().getCanonicalName()), " ", escapeUnicode(method.getName()), "("));
     }
 
     /**
@@ -204,14 +203,12 @@ public abstract class BaseImplementor {
      *
      * @param sb        target source builder.
      * @param parametrs argument types.
-     * @param withNames if {@code true}, appends type names before argument names.
+     * @param withTypes if {@code true}, appends type names before argument names.
      */
-    protected void generateArguments(StringBuilder sb, Class<?>[] parametrs, boolean withNames) {
-        final String args = IntStream.range(0, parametrs.length)
-                .mapToObj(i -> String.join("",
-                        withNames ? escapeUnicode(parametrs[i].getCanonicalName()) : "",
-                        " arg",
-                        String.valueOf(i)))
+    protected void generateArguments(StringBuilder sb, Class<?>[] parametrs, boolean withTypes) {
+        final String args = IntStream
+                .range(0, parametrs.length).mapToObj(i -> String.join("",
+                        withTypes ? escapeUnicode(parametrs[i].getCanonicalName()) : "", " arg", String.valueOf(i)))
                 .collect(Collectors.joining(", "));
         sb.append(args).append(')');
     }
@@ -225,8 +222,7 @@ public abstract class BaseImplementor {
     protected void generateExceptions(StringBuilder sb, final Class<?>[] exceptions) {
         if (exceptions.length > 0) {
             final String exceptionList = IntStream.range(0, exceptions.length)
-                    .mapToObj(i -> escapeUnicode(exceptions[i].getCanonicalName()))
-                    .collect(Collectors.joining(", "));
+                    .mapToObj(i -> escapeUnicode(exceptions[i].getCanonicalName())).collect(Collectors.joining(", "));
             sb.append(" throws ").append(exceptionList);
         }
     }
@@ -238,9 +234,7 @@ public abstract class BaseImplementor {
      * @param method implemented method token.
      */
     protected void generateDefinition(StringBuilder sb, final Method method) {
-        sb.append(String.join("",
-                " {", NL,
-                DOUBLE_INDENT, "return ", defaultValue(method.getReturnType()), ";", NL,
+        sb.append(String.join("", " {", NL, DOUBLE_INDENT, "return ", defaultValue(method.getReturnType()), ";", NL,
                 INDENT, "}", NL));
     }
 

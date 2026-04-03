@@ -83,8 +83,7 @@ public class ClassImplementor extends BaseImplementor {
             }
         }
         for (final Method method : token.getMethods()) {
-            final int modifiers = method.getModifiers();
-            if (Modifier.isStatic(modifiers) || Modifier.isPrivate(modifiers) || !Modifier.isAbstract(modifiers)) {
+            if (shouldSkipMethod(method) || Modifier.isStatic(method.getModifiers())) {
                 continue;
             }
             final String key = methodKey(method);

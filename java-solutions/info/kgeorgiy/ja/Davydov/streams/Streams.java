@@ -148,7 +148,7 @@ public class Streams implements HardStreams {
             if (arr.size() < k) {
                 arr.add(nw);
             }
-        }, (_, _) -> {
+        }, (a, b) -> {
             throw new IllegalStateException("Parallel not supported");
         }, list -> list);
     }
@@ -216,7 +216,7 @@ public class Streams implements HardStreams {
 
     private Gatherer<CharSequence, ?, CharSequence> stringSubsequences(
             BiFunction<CharSequence, Integer, CharSequence> getSubstr) {
-        return Gatherer.ofSequential(() -> null, Gatherer.Integrator.ofGreedy((_, str, ds) -> {
+        return Gatherer.ofSequential(() -> null, Gatherer.Integrator.ofGreedy((el, str, ds) -> {
             for (int i = 1; i <= str.length(); i++) {
                 if (!ds.push(getSubstr.apply(str, i))) {
                     return false;
