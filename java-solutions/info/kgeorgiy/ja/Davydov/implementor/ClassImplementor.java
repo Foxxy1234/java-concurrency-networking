@@ -67,8 +67,9 @@ public class ClassImplementor extends BaseImplementor {
         for (Class<?> node = token; node != null; node = node.getSuperclass()) {
             classes.add(node);
         }
-        Collections.reverse(classes);
-        for (final Class<?> currentClass : classes) {
+//        Collections.reverse(classes);
+
+        for (final Class<?> currentClass : classes.reversed()) {
             for (final Method method : currentClass.getDeclaredMethods()) {
                 final int modifiers = method.getModifiers();
                 if (Modifier.isPrivate(modifiers)) {
@@ -101,9 +102,12 @@ public class ClassImplementor extends BaseImplementor {
      */
     private String generateConstructor(final Constructor<?> constructor, final String implName) {
         final StringBuilder sb = new StringBuilder();
+        // :NOTE: общий код сигнатуры конструткоров
         sb.append(String.join("", INDENT, "public ", escapeUnicode(implName), "("));
         generateArguments(sb, constructor.getParameterTypes(), true);
         generateExceptions(sb, constructor.getExceptionTypes());
+        // :NOTE: %n
+        // :NOTE: string firmat
         sb.append(String.join("", " {", NL, DOUBLE_INDENT, "super("));
         generateArguments(sb, constructor.getParameterTypes(), false);
         sb.append(String.join("", ";", NL, INDENT, "}", NL));

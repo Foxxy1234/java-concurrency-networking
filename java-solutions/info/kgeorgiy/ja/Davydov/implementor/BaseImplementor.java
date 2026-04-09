@@ -1,5 +1,7 @@
 package info.kgeorgiy.ja.Davydov.implementor;
 
+// :NOTE: пакеты с маленькой буквы
+
 import info.kgeorgiy.java.advanced.implementor.ImplerException;
 
 import java.lang.reflect.Method;
@@ -20,6 +22,7 @@ public abstract class BaseImplementor {
      * @return generated Java source code.
      * @throws ImplerException if implementation cannot be generated.
      */
+    // :NOTE: modifier
     abstract String generateImplementation(Class<?> token) throws ImplerException;
 
     /**

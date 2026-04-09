@@ -66,8 +66,8 @@ final class JarCreationTools {
         final String classpath = getClassPath(dependencies).stream().map(Path::toString)
                 .collect(Collectors.joining(File.pathSeparator));
 
-        final String[] args = Stream.of("-cp", classpath, "-encoding", StandardCharsets.UTF_8.name(), "-d",
-                root.toString(), sourceFile.toString()).toArray(String[]::new);
+        final String[] args = Stream.of("-cp", classpath, "-encoding", StandardCharsets.UTF_8.name(),
+                "-d", root.toString(), sourceFile.toString()).toArray(String[]::new);
         final int exitCode = compiler.run(null, null, null, args);
         if (exitCode != 0) {
             throw new ImplerException("Compilation failed with exit code " + exitCode);
