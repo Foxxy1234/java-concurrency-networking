@@ -25,8 +25,8 @@ public class IterativeParallelism implements NewListIP {
     private final ParallelMapper parallelMapper;
 
     @FunctionalInterface
-    private interface TriFunction<A, B, C, R> {
-        R apply(A a, B b, C c);
+    private interface RangeFunction<ListT, BeginT, EndT, R> {
+        R apply(ListT list, BeginT begin, EndT end);
     }
 
     @FunctionalInterface
@@ -90,10 +90,10 @@ public class IterativeParallelism implements NewListIP {
 
     private static int[] splitBorders(int size, int parts) {
         int[] borders = new int[parts + 1];
-        int pointer = 0;
+        int pointer = 0, plusOne = size % parts;
         for (int i = 0; i < parts; i++) {
             borders[i] = pointer;
-            pointer += (size / parts) + (i < size % parts ? 1 : 0);
+            pointer += (size / parts) + (plusOne-- > 0 ? 1 : 0);
         }
         borders[parts] = pointer;
         return borders;
@@ -167,12 +167,12 @@ public class IterativeParallelism implements NewListIP {
     }
 
     private <T, U, R> R parallelMap(int threads, List<? extends T> list,
-            TriFunction<List<? extends T>, Integer, Integer, U> function, Function<List<U>, R> combiner)
+            RangeFunction<List<? extends T>, Integer, Integer, U> function, Function<List<U>, R> combiner)
             throws InterruptedException {
-        int threadsCount = Math.min(Math.max(threads, 1), list.size());
-        if (threadsCount == 0) {
+        if (list.isEmpty()) {
             return combiner.apply(List.of());
         }
+        int threadsCount = Math.max(threads, 1);
         int[] borders = splitBorders(list.size(), threadsCount);
         return combiner.apply(runMap(threadsCount, IntStream.range(0, threadsCount).boxed().toList(),
                 index -> function.apply(list, borders[index], borders[index + 1])));
