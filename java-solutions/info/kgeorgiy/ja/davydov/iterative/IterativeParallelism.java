@@ -31,6 +31,7 @@ public class IterativeParallelism implements NewListIP {
 
     @FunctionalInterface
     private interface IndexedAccumulator<T, S> {
+        // :NOTE: можно возвращать T и тогда Box не нужен
         void apply(S state, T value, int index);
     }
 
@@ -90,7 +91,8 @@ public class IterativeParallelism implements NewListIP {
 
     private static int[] splitBorders(int size, int parts) {
         int[] borders = new int[parts + 1];
-        int pointer = 0, plusOne = size % parts;
+        int pointer = 0;
+        int plusOne = size % parts;
         for (int i = 0; i < parts; i++) {
             borders[i] = pointer;
             pointer += (size / parts) + (plusOne-- > 0 ? 1 : 0);

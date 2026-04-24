@@ -23,9 +23,17 @@ public class ParallelMapperImpl implements ParallelMapper {
     private static class State {
         private final Queue<RunnableAndStoppable> queue = new ArrayDeque<>();
         private boolean closed = false;
+
+        public synchronized void addTasks(List<RunnableAndStoppable> requests) {
+            if (closed) {
+                throw new IllegalStateException("Mapper is closed");
+            }
+            queue.addAll(requests);
+            notifyAll();
+        }
     }
 
-    private class ResultCollector<R> {
+    private static class ResultCollector<R> {
         private List<R> result;
         private int remainingTasks;
         private boolean cancel = false;
@@ -85,7 +93,7 @@ public class ParallelMapperImpl implements ParallelMapper {
     }
 
     private static <T, R> void processRange(int begin, int end, List<? extends T> list,
-            Function<? super T, ? extends R> f, ResultCollector<R> rc) {
+                                            Function<? super T, ? extends R> f, ResultCollector<R> rc) {
         for (int i = begin; i < end; i++) {
             try {
                 rc.setValue(i, f.apply(list.get(i)));
@@ -102,7 +110,7 @@ public class ParallelMapperImpl implements ParallelMapper {
         ResultCollector<R> rc;
 
         public Request(int begin, int end, List<? extends T> list, Function<? super T, ? extends R> f,
-                ResultCollector<R> rc) {
+                       ResultCollector<R> rc) {
             this.begin = begin;
             this.end = end;
             this.list = list;
@@ -226,13 +234,7 @@ public class ParallelMapperImpl implements ParallelMapper {
         for (int i = 0; i < args.size(); i++) {
             requests.add(new Request<T, R>(i, i + 1, args, f, rc));
         }
-        synchronized (state) {
-            if (state.closed) {
-                throw new IllegalStateException("Mapper is closed");
-            }
-            state.queue.addAll(requests);
-            state.notifyAll();
-        }
+        state.addTasks(requests);
         return rc.await();
     }
 }
