@@ -9,8 +9,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class RequestExecutor implements AutoCloseable {
-    private static final long LIGHT_SHUTDOWN_TIMEOUT = 50L;
-    private static final long HARD_SHUTDOWN_TIMEOUT = 100L;
+    private static final long LIGHT_SHUTDOWN_TIMEOUT = 200L;
+    private static final long HARD_SHUTDOWN_TIMEOUT = 400L;
 
     private final ThreadPoolExecutor executor;
 
@@ -22,7 +22,7 @@ public class RequestExecutor implements AutoCloseable {
      *                          queue space is available
      */
     public RequestExecutor(int threads, int queueCapacity) {
-        this.executor = new ThreadPoolExecutor(threads / 2, threads, 5L, TimeUnit.SECONDS,
+        this.executor = new ThreadPoolExecutor(threads, threads, 5L, TimeUnit.SECONDS,
                 new ArrayBlockingQueue<>(queueCapacity));
         this.executor.setRejectedExecutionHandler((task, rejectedFrom) -> {
             try {
