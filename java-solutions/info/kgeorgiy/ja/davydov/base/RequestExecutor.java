@@ -15,7 +15,16 @@ public class RequestExecutor implements AutoCloseable {
     private final ThreadPoolExecutor executor;
 
     /**
-     * Creates a fixed-size executor for crawler tasks.
+     * Creates a fixed-size executor with queue capacity equal to the thread count.
+     *
+     * @param threads number of worker threads
+     */
+    public RequestExecutor(int threads) {
+        this(threads, threads);
+    }
+
+    /**
+     * Creates a fixed-size executor.
      *
      * @param threads       number of worker threads
      * @param queueCapacity task queue capacity; when full, submitter blocks until
