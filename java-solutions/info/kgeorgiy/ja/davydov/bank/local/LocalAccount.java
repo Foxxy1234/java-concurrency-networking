@@ -15,7 +15,7 @@ public class LocalAccount implements Account, Serializable {
     private static final long serialVersionUID = 1L;
 
     private final String id;
-    private int amount;
+    private int amount; // :NOTE: int пререполнрится
 
     /**
      * Creates a snapshot with the given id and balance.

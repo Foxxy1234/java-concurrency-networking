@@ -40,7 +40,7 @@ public class RemoteAccount extends UnicastRemoteObject implements Account {
     /** {@inheritDoc} */
     @Override
     public synchronized void changeAmount(final int delta) throws OutOfRangeException {
-        final long result = (long) amount + (long) delta;
+        final long result = (long) amount + (long) delta; // :NOTE: не очень
         if (result < 0 || result > Integer.MAX_VALUE) {
             throw new OutOfRangeException(id, amount, delta);
         }

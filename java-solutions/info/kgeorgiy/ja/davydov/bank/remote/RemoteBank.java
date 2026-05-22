@@ -35,10 +35,12 @@ public class RemoteBank extends UnicastRemoteObject implements Bank {
             throws RemoteException {
         final RemotePerson nw = new RemotePerson(firstName, lastName, passport, accounts);
         final RemotePerson existing = persons.putIfAbsent(passport, nw);
+        // :NOTE: кидать исключение, если человек уже есть
         if (existing != null) {
             UnicastRemoteObject.unexportObject(nw, true);
             if (!existing.getFirstName().equals(firstName) || !existing.getLastName().equals(lastName)) {
                 throw new IllegalStateException("Person data mismatch for passport " + passport);
+                // :NOTE: проверяемое исключние
             }
             return existing;
         }
@@ -94,6 +96,7 @@ public class RemoteBank extends UnicastRemoteObject implements Bank {
     @Override
     public Map<String, Account> getPersonAccounts(final String passport) {
         final String prefix = passport + ":";
+        // :NOTE: очень долго
         return accounts.entrySet().stream()
                 .filter(e -> e.getKey().startsWith(prefix))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
